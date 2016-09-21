@@ -11,7 +11,12 @@
 
 		<div id = "root" class="container">
 
-			<div id = "top-nav" class = "top-nav">
+            <div class="m-article-action">
+                <div class = "article-action-mid" id="action_mid"></div>
+            </div>
+
+
+			<div id = "top-nav" class = "top-nav" style="display: none;">
 				<div class = "icon-back"></div>
 				<div class = "nav-title">返回书架</div>
 			</div>
@@ -67,6 +72,7 @@
                     </p>
 
                 </div>
+
                 <div class = "m-button-bar">
                     <ul class = "u-tab">
                         <li id="prev_button">上一章</li>
@@ -75,10 +81,45 @@
                 </div>
             </div>
 
-            <div id = "bottom-nav" class = "bottom-nav">
-                <div class = "icon-list"></div>
-                <div class = "icon-font"></div>
+            <div id="bottom" class="bottom">
+
+                <div id="menu-nav" class = "menu-nav" style="display: none;">
+                    <div class = "nav-panel-bk"></div>
+
+                    <div class = "nav-panel" id = "font-container">
+                        <div class = "child-mod">
+                            <span>字体</span>
+                            <button id="large-font" class = "font-size-button">大</button>
+                            <button id="small-font" class = "font-size-button">小</button>
+                        </div>
+                        <div class = "child-mod">
+                            <span>背景</span>
+                            <div class = "bk-container">
+                                <div class="bk-container-current"></div>
+                            </div>
+                            <div class = "bk-container-snow">
+                                <div class="bk-container-snow-inner"></div>
+                            </div>
+                            <div class = "bk-container-grey">
+                                <div class="bk-container-grey-inner"></div>
+                            </div>
+                            <div class = "bk-container-green">
+                                <div class="bk-container-green-inner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id = "bottom-nav" class = "bottom-nav" style="display: none;">
+                    <div class = "icon-list"></div>
+                    <div class="icon-list-letter">目录</div>
+                    <div class = "icon-font" id="font-button"></div>
+                    <div class="icon-font-letter">字体</div>
+                    <div class = "icon-night" id="night-button"></div>
+                    <div class = "icon-night-letter">夜间</div>
+                </div>
             </div>
+
 
 		</div>
 		
@@ -88,9 +129,6 @@
 		</script>
 		<script src="/js/jquery.base64.js"></script>
 		<script src="/js/jquery.jsonp.js"></script>
-
-		<script>
-			
-		</script>
+		<script src = "/js/index.js"></script>
 	</body>
 </html>

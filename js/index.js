@@ -21,15 +21,22 @@
         top_nav: $("#top-nav"),
         bottom_nav: $("#bottom-nav"),
         menu_nav: $("#menu-nav"),
+        fiction_container: $("#fiction_container")
 
     };
     var Win = $(window);
     var Doc = $(document);
+    var fontSize = Util.StorageGetter("fontSize") || 14;
+
+    function init(fontSize) {
+        Dom.fiction_container.css('font-size', fontSize + "px");
+    }
 
     /**
      * the entance port for project
      */
     function main() {
+        init(fontSize);
         EventHandler();
     }
 
@@ -65,7 +72,24 @@
         $("#font-button").click(function () {
             show_font_panel();
         });
-        
+
+        $("#large-font").click(function () {
+            if (fontSize >= 20){
+                return;
+            }
+            fontSize++;
+            Dom.fiction_container.css('font-size', fontSize + "px");
+            Util.StorageSetter('fontSize', fontSize);
+        });
+        $("#small-font").click(function () {
+            if (fontSize <= 12){
+                return;
+            }
+            fontSize--;
+            Dom.fiction_container.css('font-size', fontSize + "px");
+            Util.StorageSetter('fontSize', fontSize);
+        });
+
         Win.scroll(function () {
             $(Dom.bottom_nav).hide();
             $(Dom.top_nav).hide();

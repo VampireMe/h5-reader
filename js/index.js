@@ -11,7 +11,20 @@
         var StorageSetter = function (key, val) {
             return localStorage.setItem(prefix + key, val);
         };
+        var getJSONP = function (url, callback) {
+            return $.jsonp({
+                url: url,
+                cache: true,
+                callback: 'duokan_fiction_chapter',
+                success: function (result) {
+                    var data = $.base64.decode(result);
+                    var json = decodeURIComponent(escape(data));
+                    callback(json);
+                }
+            });
+        };
         return {
+            getJSONP: getJSONP,
             StorageGetter: StorageGetter,
             StorageSetter: StorageSetter
         }
@@ -30,6 +43,9 @@
     var fontSize = Util.StorageGetter("fontSize") || 14;
     var bg = Util.StorageGetter("bg") || "#E9DFC7";
     var night = Util.StorageGetter("night") || bg;
+    var RootContainer = $("#fiction_container");
+    var renderModel;
+    var renderUI;
 
     function init(fontSize) {
         Dom.fiction_container.css('font-size', fontSize + "px");
@@ -42,6 +58,13 @@
      */
     function main() {
         init(fontSize);
+
+        renderModel = ReadModel();
+        renderUI = ReaderBaseFrame(RootContainer);
+        renderModel.init(function (data) {
+            renderUI(data);
+        });
+
         EventHandler();
     }
 
@@ -49,20 +72,94 @@
      * get data from server
      */
     function ReadModel() {
+        var Chapter_id;
+        var ChapterTotal;
 
+        var init = function (UIcallback) {
+            getFictionInfo(function () {
+                getCurChapterContent(Chapter_id, function (data) {
+                    //TODO set up the content to the page
+                    UIcallback && UIcallback(data);
+                });
+            })
+        };
+        var getFictionInfo = function (callback) {
+          $.get('/data/chapter.json', function (data) {
+              Chapter_id = data.chapters[1].chapter_id;
+              ChapterTotal = data.chapters.length;
+              callback && callback();
+          }, 'json');
+        };
+
+        var getCurChapterContent = function (chapter_id, callback) {
+            $.get('/data/data' + chapter_id + '.json', function (data) {
+                if (data.result == 0){
+                    var url = data.jsonp;
+                    Util.getJSONP(url, function (data) {
+                        callback && callback(data);
+                    });
+                }
+            });
+        };
+        
+        var prevChapter = function (UIcallback) {
+            Chapter_id = parseInt(Chapter_id, 10);
+            if (Chapter_id == 0){
+                return;
+            }
+            Chapter_id = Chapter_id - 1;
+
+            getCurChapterContent(Chapter_id, UIcallback);
+        };
+        var nextChapter = function (UIcallback) {
+            Chapter_id = parseInt(Chapter_id, 10);
+            if (Chapter_id == ChapterTotal){
+                return;
+            }
+            Chapter_id = Chapter_id + 1;
+
+            getCurChapterContent(Chapter_id, UIcallback);
+        };
+
+        return {
+            init: init,
+            prevChapter: prevChapter,
+            nextChapter: nextChapter
+        };
     }
 
     /**
      * render the basic UI
      */
-    function ReaderBaseFrame() {
-
+    function ReaderBaseFrame(container) {
+        function parseChapterContent(jsonData) {
+            var jsonObj = JSON.parse(jsonData);
+            var html = '<h4>'+ jsonObj.t +'</h4>';
+            for (var i = 0; i < jsonObj.p.length; i++){
+                html += '<p>'+ jsonObj.p[i] +'</p>';
+            }
+            return html;
+        }
+        return function (data) {
+            container.html(parseChapterContent(data));
+        }
     }
 
     /**
      * event handle method
      */
     function EventHandler() {
+        
+        $("#prev_button").click(function () {
+            renderModel.prevChapter(function (data) {
+                renderUI(data);
+            });
+        });
+        $("#next_button").click(function () {
+            renderModel.nextChapter(function (data) {
+                renderUI(data);
+            });
+        });
 
         $("#action_mid").click(function () {
             $(Dom.bottom_nav).toggle();

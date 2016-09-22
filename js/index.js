@@ -21,15 +21,18 @@
         top_nav: $("#top-nav"),
         bottom_nav: $("#bottom-nav"),
         menu_nav: $("#menu-nav"),
-        fiction_container: $("#fiction_container")
+        fiction_container: $("#fiction_container"),
+        hbody: $("body")
 
     };
     var Win = $(window);
     var Doc = $(document);
     var fontSize = Util.StorageGetter("fontSize") || 14;
+    var bg = Util.StorageGetter("bg") || "#E9DFC7";
 
     function init(fontSize) {
         Dom.fiction_container.css('font-size', fontSize + "px");
+        Dom.hbody.css('background', bg);
     }
 
     /**
@@ -65,6 +68,11 @@
             hide_font_panel();
         });
 
+        change_bg('bk-container');
+        change_bg('bk-container-snow');
+        change_bg('bk-container-grey');
+        change_bg('bk-container-green');
+
         $("#night-button").click(function () {
             
         });
@@ -95,7 +103,14 @@
             $(Dom.top_nav).hide();
             hide_font_panel();
         });
-        
+
+    }
+    
+    function change_bg(class_name) {
+        $("." + class_name).click(function () {
+            Dom.hbody.css('background', $(this).attr('data-id'));
+            Util.StorageSetter('bg', $(this).attr('data-id'));
+        });
     }
     
     function show_font_panel() {

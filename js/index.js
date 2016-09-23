@@ -6,10 +6,14 @@
     var Util = (function () {
         var prefix = 'html5_reader_';
         var StorageGetter = function (key) {
-            return localStorage.getItem(prefix + key);
+            var ret = localStorage.getItem(prefix + key);
+            if (ret == '' || ret == null || ret == undefined || ret == 'undefined'){
+                return undefined;
+            }
+            return ret;
         };
         var StorageSetter = function (key, val) {
-            return localStorage.setItem(prefix + key, val);
+            localStorage.setItem(prefix + key, val);
         };
         var getJSONP = function (url, callback) {
             return $.jsonp({
@@ -46,6 +50,7 @@
     var RootContainer = $("#fiction_container");
     var renderModel;
     var renderUI;
+    var page = Util.StorageGetter("page") || 1;
 
     function init(fontSize) {
         Dom.fiction_container.css('font-size', fontSize + "px");
@@ -85,7 +90,7 @@
         };
         var getFictionInfo = function (callback) {
           $.get('/data/chapter.json', function (data) {
-              Chapter_id = data.chapters[1].chapter_id;
+              Chapter_id = data.chapters[page].chapter_id;
               ChapterTotal = data.chapters.length;
               callback && callback();
           }, 'json');
@@ -108,8 +113,9 @@
                 return;
             }
             Chapter_id = Chapter_id - 1;
-
+            page--;
             getCurChapterContent(Chapter_id, UIcallback);
+            Util.StorageSetter('page', Chapter_id);
         };
         var nextChapter = function (UIcallback) {
             Chapter_id = parseInt(Chapter_id, 10);
@@ -117,9 +123,11 @@
                 return;
             }
             Chapter_id = Chapter_id + 1;
-
+            page++;
             getCurChapterContent(Chapter_id, UIcallback);
+            Util.StorageSetter('page', Chapter_id);
         };
+
 
         return {
             init: init,

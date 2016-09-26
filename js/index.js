@@ -3,6 +3,8 @@
  */
 
 (function () {
+    'use strict';
+
     var Util = (function () {
         var prefix = 'html5_reader_';
         var StorageGetter = function (key) {
@@ -80,20 +82,50 @@
         var Chapter_id;
         var ChapterTotal;
 
-        var init = function (UIcallback) {
+        /*var init = function (UIcallback) {
             getFictionInfo(function () {
                 getCurChapterContent(Chapter_id, function (data) {
                     //TODO set up the content to the page
                     UIcallback && UIcallback(data);
                 });
             })
+        };*/
+
+        var init = function (UIcallback) {
+            getFictionInfoPromise.then(function () {
+                getCurChapterContentPromise(Chapter_id).then(function (data) {
+                    UIcallback(data);
+                });
+            });
         };
+
         var getFictionInfo = function (callback) {
           $.get('/data/chapter.json', function (data) {
               Chapter_id = data.chapters[page].chapter_id;
               ChapterTotal = data.chapters.length;
               callback && callback();
           }, 'json');
+        };
+
+        var getFictionInfoPromise = new Promise(function (resolve, reject) {
+            $.get('/data/chapter.json', function (data) {
+                Chapter_id = data.chapters[page].chapter_id;
+                ChapterTotal = data.chapters.length;
+                resolve('success');
+            }, 'json');
+        });
+
+        var getCurChapterContentPromise = function (chapter_id) {
+            return new Promise(function (resolve, reject) {
+                $.get('/data/data' + chapter_id + '.json', function (data) {
+                    if (data.result == 0){
+                        var url = data.jsonp;
+                        Util.getJSONP(url, function (data) {
+                            resolve(data);
+                        });
+                    }
+                });
+            });
         };
 
         var getCurChapterContent = function (chapter_id, callback) {
@@ -106,7 +138,7 @@
                 }
             });
         };
-        
+
         var prevChapter = function (UIcallback) {
             Chapter_id = parseInt(Chapter_id, 10);
             if (Chapter_id == 0){
